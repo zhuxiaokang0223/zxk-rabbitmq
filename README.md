@@ -1,0 +1,2 @@
+# zxk-rabbitmq
+rabbitmq

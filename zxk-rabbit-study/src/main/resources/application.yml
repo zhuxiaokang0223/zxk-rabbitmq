@@ -1,0 +1,19 @@
+server:
+  port: 8901
+
+spring:
+  application:
+    name: zxk-rabbit-study
+
+  rabbitmq:
+    host: 10.122.11.55
+    username: admin
+    password: admin
+    port: 5672
+    publisher-returns: true
+    publisher-confirm-type: correlated # 必须配置才能确认回调。消息成功到达交换机
+    listener:
+      simple:
+        acknowledge-mode: manual # 手动应答
+
+

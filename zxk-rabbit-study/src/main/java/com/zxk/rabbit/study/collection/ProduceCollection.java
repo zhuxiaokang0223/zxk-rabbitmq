@@ -33,4 +33,14 @@ public class ProduceCollection {
         }
         return "OK";
     }
+
+    @GetMapping("/helloWordBatch")
+    public String helloWordBatch() {
+        log.info("hello word Batch");
+        for (int i=0; i< 100; i++) {
+            String msg = "hello" + i;
+            rabbitTemplate.convertAndSend(RabbitConfiguration.EXCHANGE_DEFAULT_BATCH, RabbitConfiguration.ROUTING_DEFAULT_BATCH, msg);
+        }
+        return "OK";
+    }
 }

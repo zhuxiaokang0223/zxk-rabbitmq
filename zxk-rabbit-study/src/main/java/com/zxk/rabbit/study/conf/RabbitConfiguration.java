@@ -3,6 +3,7 @@ package com.zxk.rabbit.study.conf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -28,6 +29,16 @@ public class RabbitConfiguration {
         rabbitTemplate.setConfirmCallback(new ConfirmCallback());
         rabbitTemplate.setReturnCallback(new ReturnCallback());
         return rabbitTemplate;
+    }
+
+    @Bean
+    public SimpleRabbitListenerContainerFactory simpleRabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
+        SimpleRabbitListenerContainerFactory simpleFactory = new SimpleRabbitListenerContainerFactory();
+        simpleFactory.setConnectionFactory(connectionFactory);
+        simpleFactory.setBatchListener(true);  // 开启批量监听
+        simpleFactory.setConsumerBatchEnabled(true);  // 设置BatchMessageListener生效
+        simpleFactory.setBatchSize(10); // 一个批次消费数量
+        return simpleFactory;
     }
 
     /**
@@ -63,6 +74,8 @@ public class RabbitConfiguration {
     public static final String EXCHANGE_DEFAULT = "defaultExchange";
     public static final String ROUTING_DEFAULT = "default";
 
+
+    // 默认queue
     @Bean
     public Queue defaultQueue() {
         return new Queue("defaultQueue");
@@ -75,7 +88,25 @@ public class RabbitConfiguration {
 
     @Bean
     public Binding defaultBinding() {
-        return BindingBuilder.bind(defaultQueue()).to(defaultExchange()).with("default");
+        return BindingBuilder.bind(defaultQueue()).to(defaultExchange()).with(ROUTING_DEFAULT);
+    }
+
+    public static final String EXCHANGE_DEFAULT_BATCH = "defaultExchangeBatch";
+    public static final String ROUTING_DEFAULT_BATCH = "defaultBatch";
+    // 默认批量queue
+    @Bean
+    public Queue defaultBatchQueue() {
+        return new Queue("defaultBatchQueue");
+    }
+
+    @Bean
+    public DirectExchange defaultBatchExchange() {
+        return new DirectExchange(EXCHANGE_DEFAULT_BATCH);
+    }
+
+    @Bean
+    public Binding defaultBatchBinding() {
+        return BindingBuilder.bind(defaultBatchQueue()).to(defaultBatchExchange()).with(ROUTING_DEFAULT_BATCH);
     }
 
 }
